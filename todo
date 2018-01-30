@@ -1,0 +1,202 @@
+// TODO: Общее:
+// 1. Странный формат ошибок:
+// > Error
+// > Заполните поля
+// > Error: Заполните поля
+// >     at onmessage (http://localhost:63342/compare.v2/compare.v2/task.js:6:10)
+// Можно написать просто одним предложением, чтобы было понятно?
+//
+// 2. Если в сниппете 1 ошибки нет, а во втором есть - пользователь увидет это только на точке 50%.
+//    Смысла в этом никакого нет. Нужно валидировать оба сниппета предварительно.
+//
+// 3. Поля сниппетов доступны для редактирования пока тест идёт - лучше их блокировать на это время,
+//    т.к. оба поля можно опустошить, прогресс бар при этом идет и смотрится странно.
+//
+// 4. Будет удобнее в результах видеть за какое время каждый сниппет выполняется, а не только разницу?
+//    Копирование кода "победителя" тоже выглядит сомнительным. Было бы понятнее если бы победивший сниппет
+//    просто подсвечивался зелёной рамкой.
+//
+// 5. В случае ошибок валидации лучше тоже хайлайтить проблемный сниппет чтобы его не искать. (красным цветом, или рамкой)
+//
+// 6. Часть текста на странице на русском, часть на английском - лучше выбрать одну локаль, какая тебе больше нравится.
+
+// TODO: разный формат отступов в этом файле и task.js
+// TODO: main3.js - странное название
+
+// TODO: глобальные переменные - плохая практика. https://www.w3schools.com/js/js_scope.asp
+let snippetFaster = document.querySelector("#snippetFaster");
+let fasterTime = document.querySelector("#fasterTime");
+let progressLine = document.querySelector("#progressLine");
+let progressPercent = document.querySelector("#progressBarValue");
+let snippetOneValue = document.querySelector("#snippetOne").value.trim();
+let snippetTwoValue = document.querySelector("#snippetTwo").value.trim();
+let compareButton = document.querySelector("#compare");
+
+class Compare {
+
+  constructor() {
+    // TODO: почему все остальные селекторы в одном месте, а этот - здесь?
+    this.stopButton = document.querySelector("#cancel");
+    // TODO: Не похоже что Compare должен знать о прогресс баре. UI может поменяться.
+    this.progressIndex = 0;
+  }
+
+  // TODO: функиция не делает того что можно было бы назвать "goCompare"
+  goCompare() {
+    compareButton.addEventListener('click', () => {
+      this._whatIsFaster();
+    });
+  }
+
+  // TODO: функиция не делает того что можно было бы назвать "stopCompare"
+  stopCompare() {
+    this.stopButton.addEventListener('click', () => {
+      viewMethod(this.timeFast, this.codFast, this.differenceSpeed, this.errorMessage, this.progressIndex, this.compareButtonDisabled = "false");
+      this.worker.terminate();
+    });
+  }
+
+  _whatIsFaster() {
+    // TODO: вёрстка может поменяться, Compare не должен страдать от этого
+    snippetOneValue = document.querySelector("#snippetOne").value.trim();
+    snippetTwoValue = document.querySelector("#snippetTwo").value.trim();
+
+    // TODO: не будет работать без веб-сервера, решение не очень тривиально, если не найдёшь - обсудим.
+    this.worker = new Worker('task.js');
+    this.worker.postMessage([snippetOneValue, snippetTwoValue]);
+
+    this.worker.onmessage = function(e) {
+      
+      //get the data for bar progress
+      if(e.data.length === 1) {
+        this.progressIndex = e.data[0];
+      }
+      //obtain the result of calculations
+      else {
+        // TODO: timeFast, codFast - не совсем ясное название переменных.
+        this.timeFast = e.data[0][0];
+        this.codFast = e.data[0][1];
+        this.differenceSpeed = e.data[1][0];
+        this.errorMessage = e.data[1];
+        // TODO: "false"? JS умеет в Boolean.
+        this.compareButtonDisabled = "false";
+      }
+
+      viewMethod(this.timeFast, this.codFast, this.differenceSpeed, this.errorMessage, this.progressIndex, this.compareButtonDisabled);
+    } 
+  }
+};
+
+// TODO: многовато параметров, нарушение SRP.
+function viewMethod(timeFast, codFast = "", differenceSpeed = "...", errorMessage, progressIndex = 0, compareButtonDisabled = "true") {
+  //progress bar <-- TODO: лишний комментарий
+  progressLine.style.width = progressIndex + "%";
+  progressPercent.innerText = progressIndex + "%";
+
+  fasterTime.innerHTML = differenceSpeed;
+
+  if(timeFast === "e") {
+    fasterTime.innerHTML = "...";
+    snippetFaster.innerHTML = errorMessage;
+  }
+
+  else {
+    snippetFaster.innerHTML = codFast;
+  }
+
+  //disabled or not compareButton <-- TODO: комментарий ясности не вносит
+  compareButton.setAttribute("disabled", "true");
+  // TODO: не вижу ни одной причины так делать.
+  if(compareButtonDisabled === "false") compareButton.removeAttribute("disabled");
+
+};
+
+// TODO: безусловное выполнение кода, лучше выполнять его после подгрузки dom (т.к. код работает с DOM)
+let compare = new Compare();
+compare.goCompare();
+compare.stopCompare();
+
+
+
+
+
+// TODO: разный формат отступов в этом файле и main3.js
+
+onmessage = function(e) {
+
+  try { 
+
+    if (e.data[0].length === 0 || e.data[1].length === 0) {
+      // TODO: exception flow - плохая практика.
+      throw new Error("Заполните поля");
+      // TODO: IDE намекает - unreachable code.
+      postMessage(["error", err.name + "\n" + err.message + "\n" + err.stack]);
+    }
+
+    let timeOneIteration;
+    // TODO: более семантически верно название связать с iteration, а не с progress
+    let progressIndex = 0;
+
+    // TODO: NOTE: другой способ записать это let timing(code) => {}, но кому как нравится
+    function timing(code) {
+        let time = performance.now();
+        // TODO: лучше eval забиндить на пустой контекст, чтобы не было доступа к внешним переменным
+        eval(code);
+        time = performance.now() - time;
+        timeOneIteration = time.toFixed(5);
+      };
+
+      function averageTimeCalculation(code) {
+        let arr = [];
+      // TODO: лучше 1000 вынести в константу конфигурации приложения.
+        for(let i = 0; i < 1000; i++){
+
+            timing(code);
+
+            // TODO: для чего + ?
+            arr.push(+timeOneIteration);
+        // TODO: 20?
+            if (i % 20 === 0) {
+              progressIndex++;
+              postMessage([progressIndex]);
+            }
+          }
+            // TODO: NOTE: https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+            let result = arr.reduce(function(sum, current) {
+            return sum + current;
+        });
+        
+        return result / arr.length;
+      };
+
+      // TODO: ну так и стоит назвать переменные, а не 'a'/'b', и комментарии поясняющие будут не нужны.
+      //a - run time first snippet
+      //b - run time second snippet 
+    let a = averageTimeCalculation(e.data[0]);
+    let b = averageTimeCalculation(e.data[1]);
+
+    if(a < b) {
+      // TODO: лучше передавать объект с понятными полями, чем разбирать потом по индексам
+      postMessage([[a, e.data[0]], [(b - a).toFixed(3)]]);
+    }
+    else {
+            // TODO: лучше передавать объект с понятными полями, чем разбирать потом по индексам
+      postMessage([[b, e.data[1]], [(a - b).toFixed(3)]]);
+    }
+    // TODO: не на том же уровне что и try. Автоформат кода есть во всех редакторах.
+      } catch (err){
+      // TODO: stack - нестандартное свойство. https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Error/Stack
+        postMessage(["error", err.name + "\n" + err.message + "\n" + err.stack]);
+  }
+
+};
+
+
+
+
+
+Глобально к ним могу добавить на данный момент следующее:
+- разнести классы по разным файлам (1 класс - 1 файл), так будет удобнее.
+- функцию воркера тоже нужно вынести в отдельный файл.
+- в postMessage передаются массивы, и исходя из длины массива потом принимаются решения как парсить данные -- это не очень надёжный интерфейс взаимодействия. Предлагаю просто передавать там объекты.
+- Есть путанница с приватными методами (те, что начинаются с "_") - они дергаются снаружи, что какбы нарушает их "приватность". Нужно продумать этот момент.
