@@ -1,0 +1,158 @@
+* {
+	box-sizing: border-box;
+}
+
+body{
+	display: flex;
+	justify-content: center;
+  	flex-wrap: wrap;
+  	width: 100%;
+  	margin: 0 auto;
+  	font-family: "Roboto";
+  	font-weight: 400;
+  	font-size: 16px;
+  	background-color: #303133;
+  	overflow-x: hidden;
+}
+
+.app {
+	display: flex;
+	justify-content: space-between;
+  	flex-wrap: wrap;
+  	width: 100%;
+  	max-width: 1170px;
+  	padding: 15px;
+}
+
+.app__coll {
+	width: calc(50% - 30px);
+}
+
+.snippets__item {
+	margin: 15px;
+}
+
+.snippet {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.snippet__title {
+	width: 100%;
+	margin-bottom: 10px;
+	font-size: 28px;
+	font-weight: 700;
+	color: #fff;
+}
+
+.snippet__code {
+	width: 100%;
+	min-height: 200px;
+	padding: 15px;
+	border-radius: 5px;
+	border: 1px solid #111111;
+	font-size: 16px;
+	color: #fff;
+	background-color: #111111;
+	transition: 0.2s;
+	resize: none;
+}
+
+.snippet__code:focus {
+	outline: none;
+	border-color: #BB432C;
+}
+
+.snippet__time {
+    margin-top: 10px;
+    font-size: 18px;
+    color: #fff;
+}
+
+.snippet__bold {
+	font-weight: 700;
+}
+
+.button {
+	width: calc(50% - 7.5px);
+	height: 45px;
+	font-size: 16px;
+	border-radius: 5px;
+	border: none;
+	color: #fff;
+	background-color: #BB432C;
+	transition: 0.2s;
+	cursor: pointer;
+}
+
+.button:hover {
+	background-color: #B0412C;
+}
+
+.button:active {
+	background-color: #963726;
+}
+
+.button:focus {
+	outline: none;
+}
+
+.button[disabled="true"] {
+	background-color: #963726;
+	cursor: default;
+}
+
+.result__item {
+	margin: 15px;
+}
+
+.result__item--button {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 60px;
+}
+
+.progress-bar {
+	width: 100%;
+}
+
+.progress-bar__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0 10px 0;
+    font-size: 18px;
+    color: #fff;
+}
+
+.progress-bar__value {
+	font-weight: 700;
+}
+
+.progress-bar__bar {
+	width: 100%;
+	height: 45px;
+	border-radius: 5px;
+	background-color: #111111;
+	position: relative;
+	overflow: hidden;
+}
+
+.progress-bar__line {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 100%;
+	background-color: #BB432C;
+}
+
+@media (max-width: 768px){
+	.app {
+		flex-wrap: wrap;
+	}
+
+	.app__coll {
+    	width: 100%;
+	}
+}

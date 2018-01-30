@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Compare JS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+</head>
+  <body>
+    <div class="app">
+      <div class="app__coll snippets">
+        <div class="snippet snippets__item">
+          <div class="snippet__title">Snippet 1</div>
+          <textarea class="snippet__code" id="snippetOne" spellcheck="false"></textarea>
+        </div>
+        <div class="snippet snippets__item">
+          <div class="snippet__title">Snippet 2</div>
+          <textarea class="snippet__code" id="snippetTwo" spellcheck="false"></textarea>
+        </div>
+      </div>
+      <div class="app__coll result">
+        <div class="result__item result__item--button">
+          <button class="button" id="compare">Compare</button>
+          <button class="button" id="cancel">Cancel</button>
+        </div>
+        <div class="result__item">
+          <div class="snippet">
+            <textarea class="snippet__code" id="snippetFaster" readonly spellcheck="false"></textarea>
+            <div class="snippet__time">Быстрее на <span class='snippet__bold' id="fasterTime">...</span> мс</div>
+            <div class="progress-bar">
+              <div class="progress-bar__header">
+                <div class="progress-bar__title">Выполнено</div>
+                <div class="progress-bar__value" id="progressBarValue">0%</div>
+              </div>
+              <div class="progress-bar__bar">
+                <div class="progress-bar__line" id="progressLine"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="main.js" type="text/javascript"></script>
+  </body>
+</html> 
