@@ -16,13 +16,15 @@ export default class Controller {
     this.view._clickOnStopButton(this.compare);
   }
 
-  _fromModelToView(progressIndex, compareButtonDisabled, fastestTime, fastestCode, differenceSpeed, errorMessage) {
-    view._progreesBar(progressIndex);
-    view._compareButtonState(compareButtonDisabled);
-    view._innerResult(fastestTime, fastestCode, differenceSpeed, errorMessage);
+  _fromModelToView(objFromWorker) {
+    view._progreesBar(objFromWorker.iterationIndex);
+    view._compareStateUi(objFromWorker.disabledUi);
+    view._markQuickSnippet(objFromWorker.fastestSnippetIndex);
+    view._innerResult(objFromWorker.fastestCode, objFromWorker.differenceSpeed, objFromWorker.errorMessage, objFromWorker.runTimeFirstSnippet, objFromWorker.runTimeSecondSnippet);
   }
 
 }
+
 
 let compare = new Compare();
 let view = new View();
