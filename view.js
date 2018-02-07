@@ -3,6 +3,10 @@ export default class View {
   constructor() {
     this.compareButton = document.querySelector("#compare");
     this.stopButton = document.querySelector("#cancel");
+    this.snippetFaster = document.querySelector("#snippetFaster");
+    this.fasterTime = document.querySelector("#fasterTime");
+    this.snippetFields = document.querySelectorAll(".snippet__code");
+    this.snippetResultTime = document.querySelectorAll(".snippet-result-js");
   }
 
   _clickOnStartButton(compare, fromModelToView) {
@@ -13,21 +17,34 @@ export default class View {
     });
   }
 
-  _innerResult(fastestTime, fastestCode = "", differenceSpeed = "...", errorMessage) {
-    let snippetFaster = document.querySelector("#snippetFaster");
-    let fasterTime = document.querySelector("#fasterTime");
+  _innerResult(fastestCode = "", differenceSpeed = "...", errorMessage, runTimeFirstSnippet = "...", runTimeSecondSnippet = "...") {
+    this.fasterTime.innerHTML = differenceSpeed;
 
-    fasterTime.innerHTML = differenceSpeed;
+    if(errorMessage) {
+      this.fasterTime.innerHTML = "...";
+      this.snippetFaster.innerHTML = errorMessage;
+      this.snippetResultTime[0].innerHTML = "...";
+      this.snippetResultTime[1].innerHTML = "...";
 
-    if(fastestTime === "e") {
-      fasterTime.innerHTML = "...";
-      snippetFaster.innerHTML = errorMessage;
+      return;
     }
 
-    else {
-      snippetFaster.innerHTML = fastestCode;
-    }
+    this.snippetFaster.innerHTML = fastestCode;
+    this.snippetResultTime[0].innerHTML = runTimeFirstSnippet;
+    this.snippetResultTime[1].innerHTML = runTimeSecondSnippet;
   };
+
+  _markQuickSnippet(fastestSnippetIndex){
+    this._removeMarkFields();
+    if(!Number.isInteger(fastestSnippetIndex)) return;
+    this.snippetFields[fastestSnippetIndex].classList.add("snippet__code--fastest");
+  }
+
+  _removeMarkFields(){
+    for (let i = 0; i < this.snippetFields.length; i++){
+       this.snippetFields[i].classList.remove("snippet__code--fastest");
+    }
+  }
 
   _progreesBar(progressIndex = 0){
     let progressLine = document.querySelector("#progressLine");
@@ -37,20 +54,31 @@ export default class View {
     progressPercent.innerText = progressIndex + "%";
   }
 
-  _compareButtonState(compareButtonDisabled = true) {
+  _compareStateUi(disabledUi = true) {
     //control state of this.compareButton
     this.compareButton.setAttribute("disabled", "true");
-    if(compareButtonDisabled === false) this.compareButton.removeAttribute("disabled");
+
+    if(disabledUi === false) {
+      this.snippetFields[0].removeAttribute("disabled");
+      this.snippetFields[1].removeAttribute("disabled");
+      this.compareButton.removeAttribute("disabled");
+    }
+
+    else {
+      this.snippetFields[0].setAttribute("disabled", "true");
+      this.snippetFields[1].setAttribute("disabled", "true");
+      this.compareButton.setAttribute("disabled", "true");
+    }
+    
   }
 
   _clickOnStopButton(compare) {
     this.stopButton.addEventListener('click', () => {
       this._progreesBar(this.progressIndex);
-      this._compareButtonState(false);
-      this._innerResult(this.fastestTime, this.fastestCode, this.differenceSpeed, this.errorMessage);
+      this._compareStateUi(false);
+      this._innerResult();
+      this._removeMarkFields();
       compare._terminateWork();
     });
   }
 }
-
-
